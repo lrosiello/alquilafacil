@@ -1,0 +1,87 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  nombre        String
+  rol           Rol
+  sitioWeb      String?  // Solo para Inmobiliarias, puede ser NULL
+  imagenLogo    String?  // URL del logo de la inmobiliaria, puede ser NULL
+  esInmobiliaria Boolean
+  cuit          Int?  //las inmobiliarias tienen opcion de agregar CUIT
+  localidad     String
+  publicaciones Publicacion[] // Relación con publicaciones
+  createdAt     DateTime @default(now())
+  acuerdosComoInquilino AcuerdoAlquiler[] @relation("Inquilino")  
+  acuerdosComoOferente  AcuerdoAlquiler[] @relation("Oferente") 
+  calificacionesRecibidas Calificacion[] @relation("Calificado") 
+  calificacionesRealizadas Calificacion[] @relation("Calificador") 
+}
+
+enum Rol {
+  ADMIN
+  INQUILINO
+  OFERENTE
+}
+
+model Publicacion {
+  id              Int       @id @default(autoincrement())
+  titulo          String
+  descripcion     String
+  precio          Float
+  direccion       String
+  localidad       String
+  fechaExpiracion DateTime  @default(dbgenerated("(datetime('now', '+60 days'))")) // Valor por defecto de 60 días a partir de la fecha actual
+  estado          Estado    // esta disponible o alquilado
+  fotos           Foto[]    @relation("FotosRelacionadas") // Relación con fotos
+  oferenteId      Int
+  oferente        Usuario   @relation(fields: [oferenteId], references: [id], onDelete: Cascade) // Relación con el ofertante (inmobiliaria o particular)
+  createdAt       DateTime  @default(now())
+  acuerdoAlquiler AcuerdoAlquiler?
+}
+
+enum Estado {
+  DISPONIBLE
+  ALQUILADO
+}
+
+model Foto {
+  id              Int       @id @default(autoincrement())
+  url             String    // URL de la foto
+  publicacionId   Int
+  publicacion     Publicacion @relation("FotosRelacionadas", fields: [publicacionId], references: [id]) // Relación con Publicacion para fotos principales
+}
+
+model AcuerdoAlquiler {
+  id             Int      @id @default(autoincrement())
+  publicacionId  Int @unique
+  publicacion    Publicacion @relation(fields: [publicacionId], references: [id])
+  inquilinoId    Int?
+  inquilino      Usuario?  @relation("Inquilino", fields: [inquilinoId], references: [id], onDelete: SetNull)
+  nombreInquilino String    // Guarda el nombre en el momento del acuerdo
+  oferenteId Int?
+  oferente   Usuario?  @relation("Oferente", fields: [oferenteId], references: [id], onDelete: SetNull)
+  nombreOferente String     // Guarda el nombre en el momento del acuerdo
+  fechaAcuerdo   DateTime @default(now())
+  calificaciones Calificacion[] @relation("AcuerdoRelacion")
+}
+
+model Calificacion {
+  id              Int       @id @default(autoincrement())
+  calificadorId   Int
+  calificador     Usuario   @relation("Calificador", fields: [calificadorId], references: [id])
+  calificadoId    Int
+  calificado      Usuario   @relation("Calificado", fields: [calificadoId], references: [id])
+  puntuacion      Int
+  comentario      String?
+  acuerdoId       Int?       // opcional, solo si hubo acuerdo
+  acuerdo AcuerdoAlquiler? @relation("AcuerdoRelacion", fields: [acuerdoId], references: [id])
+}
