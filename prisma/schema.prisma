@@ -10,21 +10,21 @@ generator client {
 model Usuario {
   id            Int      @id @default(autoincrement())
   email         String   @unique
-  password      String
   nombre        String
-  rol           Rol
-  sitioWeb      String?  // Solo para Inmobiliarias, puede ser NULL
-  imagenLogo    String?  // URL del logo de la inmobiliaria, puede ser NULL
-  esInmobiliaria Boolean
-  cuit          Int?  //las inmobiliarias tienen opcion de agregar CUIT
-  localidad     String
-  publicaciones Publicacion[] // Relación con publicaciones
+  rol           Rol?
+  sitioWeb      String? 
+  imagenLogo    String? 
+  esInmobiliaria Boolean?
+  cuit          Int?  
+  localidad     String?
+  publicaciones Publicacion[] 
   createdAt     DateTime @default(now())
   acuerdosComoInquilino AcuerdoAlquiler[] @relation("Inquilino")  
   acuerdosComoOferente  AcuerdoAlquiler[] @relation("Oferente") 
   calificacionesRecibidas Calificacion[] @relation("Calificado") 
   calificacionesRealizadas Calificacion[] @relation("Calificador") 
 }
+
 
 enum Rol {
   ADMIN

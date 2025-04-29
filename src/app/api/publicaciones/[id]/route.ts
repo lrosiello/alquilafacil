@@ -2,7 +2,7 @@ import {
     handleGetPublicacionById,
     handleUpdatePublicacion,
     handleDeletePublicacion,
-  } from "../controllers/publicacionController";
+  } from "../../../controllers/publicacionController";
   
   // Manejar solicitudes GET (obtener una publicación por ID)
   export async function GET(

@@ -1,4 +1,4 @@
-import { handleGetUsuarios, handleCreateUsuario } from "./controllers/usuarioController";
+import { handleGetUsuarios, handleCreateUsuario } from "../../controllers/usuarioController";
 
 export async function GET() {
   return handleGetUsuarios();
