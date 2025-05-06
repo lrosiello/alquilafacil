@@ -1,5 +1,6 @@
 import * as calificacionRepository from "../repositories/calificacionRepository";
 import { CalificacionData } from "../models/calificacionTypes";
+import validating from "./calificacionValidations";
 
 export async function getAllCalificaciones() {
   return await calificacionRepository.getAllCalificaciones();
@@ -21,10 +22,16 @@ export async function createCalificacion(calificacionData: CalificacionData) {
     !calificadorId ||
     !calificadoId ||
     !puntuacion ||
-    !comentario ||
-    !acuerdoId
+    !comentario
   ) {
     throw new Error("Todos los campos son obligatorios");
+  }
+
+  //REVISAR PARA LA PROXIMA
+  const validation = await validating(calificadorId, calificadoId, puntuacion, acuerdoId);
+
+  if (!validation.valid) {
+    throw new Error(validation.message);
   }
 
   return await calificacionRepository.createCalificacion(calificacionData);

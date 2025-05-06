@@ -1,30 +1,28 @@
 import * as fotoRepository from "../repositories/fotoRepository";
 import { FotoData } from "../models/fotoTypes";
+import * as publicacionRepository from "../repositories/publicacionRepository";
 
 export async function getAllFotos() {
   return await fotoRepository.getAllFotos();
 }
 
-
-
-
 export async function createFoto(fotoData: FotoData) {
-  const {
-    url,
-    publicacionId,
-  } = fotoData;
+  const { url, publicacionId } = fotoData;
 
-  if (
-    !url ||
-    !publicacionId
-  ) {
+  if (!url || !publicacionId) {
     throw new Error("Todos los campos son obligatorios");
+  }
+
+  // Verificar si existe la publicacion
+  const publicacionExiste = await publicacionRepository.getPublicacionById(
+    publicacionId
+  );
+  if (!publicacionExiste) {
+    throw new Error("La publicacion indicada no existe");
   }
 
   return await fotoRepository.createFoto(fotoData);
 }
-
-
 
 
 
@@ -40,28 +38,24 @@ export async function getFotoById(id: number) {
 
 
 
-
-export async function updateFoto(
-  id: number,
-  fotoData: FotoData
-) {
-  const fotoExistente = await fotoRepository.getFotoById(
-    id
-  );
+export async function updateFoto(id: number, fotoData: FotoData) {
+  const fotoExistente = await fotoRepository.getFotoById(id);
   if (!fotoExistente) {
     throw new Error("Esta foto no existe para actualizar");
   }
 
-  const {
-    url,
-    publicacionId
-  } = fotoData;
+  const { url, publicacionId } = fotoData;
 
-  if (
-    !url ||
-    !publicacionId
-  ) {
+  if (!url || !publicacionId) {
     throw new Error("Todos los campos son obligatorios");
+  }
+
+  // Verificar si existe la publicacion
+  const publicacionExiste = await publicacionRepository.getPublicacionById(
+    publicacionId
+  );
+  if (!publicacionExiste) {
+    throw new Error("La publicacion indicada no existe");
   }
 
   return await fotoRepository.updateFoto(id, fotoData);
@@ -73,9 +67,7 @@ export async function updateFoto(
 
 
 export async function deleteFoto(id: number) {
-  const fotoExistente = await fotoRepository.getFotoById(
-    id
-  );
+  const fotoExistente = await fotoRepository.getFotoById(id);
   if (!fotoExistente) {
     throw new Error("No se encontro la foto a eliminar");
   }

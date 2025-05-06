@@ -6,9 +6,6 @@ export async function getAllPublicaciones() {
   return await publicacionRepository.getAllPublicaciones();
 }
 
-
-
-
 export async function createPublicacion(publicacionData: PublicacionData) {
   const {
     titulo,
@@ -32,17 +29,15 @@ export async function createPublicacion(publicacionData: PublicacionData) {
     throw new Error("Todos los campos son obligatorios");
   }
 
-  const validation = validating(precio, estado);
+
+
+  const validation = await validating(precio, estado , oferenteId);
   if (!validation.valid) {
     throw new Error(validation.message);
   }
 
   return await publicacionRepository.createPublicacion(publicacionData);
 }
-
-
-
-
 
 export async function getPublicacionById(id: number) {
   const publicacion = await publicacionRepository.getPublicacionById(id);
@@ -51,11 +46,6 @@ export async function getPublicacionById(id: number) {
   }
   return publicacion;
 }
-
-
-
-
-
 
 export async function updatePublicacion(
   id: number,
@@ -78,6 +68,7 @@ export async function updatePublicacion(
     oferenteId,
   } = publicacionData;
 
+  //verificando existencia de campos
   if (
     !titulo ||
     !descripcion ||
@@ -90,18 +81,15 @@ export async function updatePublicacion(
     throw new Error("Todos los campos son obligatorios");
   }
 
-  const validation = validating(precio, estado);
+
+  //Verificando campos
+  const validation = await validating(precio, estado, oferenteId);
   if (!validation.valid) {
     throw new Error(validation.message);
   }
 
   return await publicacionRepository.updatePublicacion(id, publicacionData);
 }
-
-
-
-
-
 
 export async function deletePublicacion(id: number) {
   const publicacionExistente = await publicacionRepository.getPublicacionById(
