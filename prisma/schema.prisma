@@ -15,7 +15,7 @@ model Usuario {
   sitioWeb      String? 
   imagenLogo    String? 
   esInmobiliaria Boolean?
-  cuit          Int?  
+  cuit          BigInt?  
   localidad     String?
   publicaciones Publicacion[] 
   createdAt     DateTime @default(now())

@@ -1,0 +1,37 @@
+NEW USERS
+enpoint: POST   http://localhost:3000/api/usuarios
+{
+  "nombre": "Luis Rosiello",
+  "email": "luis.rosiello@example.com"
+}
+
+USERS WHEN ADD NEW INFO
+endpoint: PUT    http://localhost:3000/api/usuarios/1?completarCuenta=true
+{
+  "rol": "OFERENTE",
+  "esInmobiliaria": false,
+  "localidad": "Córdoba"
+}
+
+
+WHEN USERS ARE REAL ESTATE (optional)
+enpoint: PUT   http://localhost:3000/api/usuarios/1
+{
+  "cuit": 30712345688,
+  "sitioWeb": "https://miinmobiliaria.ar",
+  "imagenLogo": "https://miinmobiliaria.ar/logo.png"
+}
+
+
+
+POSTS
+endpoint: POST    http://localhost:3000/api/publicaciones
+{
+  "titulo": "Apartamento en alquiler",
+  "descripcion": "Hermoso apartamento de 2 habitaciones, 1 baño, cocina equipada.",
+  "precio": 320000,
+  "direccion": "Calle Ficticia 123, Ciudad Ficticia",
+  "localidad": "Ciudad Ficticia",
+  "estado": "DISPONIBLE",
+  "oferenteId": 1
+}

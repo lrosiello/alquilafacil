@@ -42,6 +42,14 @@ export async function updateUsuario(
       throw new Error("Debe completar rol, localidad y si es inmobiliaria.");
     }
 
+    // No permitir completar si ya fue completado antes
+    if (
+      usuarioExistente.rol !== null ||
+      usuarioExistente.esInmobiliaria !== null
+    ) {
+      throw new Error("La cuenta ya fue completada previamente.");
+    }
+
     const validation = validating(rol, esInmobiliaria);
     if (!validation.valid) {
       throw new Error(validation.message);
@@ -55,15 +63,25 @@ export async function updateUsuario(
       usuarioData.nombre
     ) {
       throw new Error(
-        "No se puede modificar el rol ni si es inmobiliaria una vez finalizado el registro."
+        "No se puede modificar el rol, ni si es inmobiliaria una vez finalizado el registro."
       );
     }
   }
 
+  //Actualizacion de campos exclusivos de las inmobiliaras.
+  const camposSoloInmobiliaria = ["cuit", "sitioWeb", "imagenLogo"];
+  const camposInvalidos = camposSoloInmobiliaria.filter(
+    (campo) => usuarioData[campo as keyof UsuarioUpdateData] !== undefined
+  );
+  if (camposInvalidos.length > 0 && !usuarioExistente.esInmobiliaria) {
+    throw new Error(
+      `Los campos ${camposInvalidos.join(
+        ", "
+      )} solo pueden ser completados por usuarios inmobiliarios.`
+    );
+  }
   return await usuarioRepository.updateUsuario(id, usuarioData);
 }
-
-
 
 export async function deleteUsuario(id: number) {
   const usuarioExistente = await usuarioRepository.getUsuarioById(id);

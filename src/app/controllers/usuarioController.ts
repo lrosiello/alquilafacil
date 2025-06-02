@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import * as usuarioService from "../services/usuarioService";
+import { convertBigIntsToStrings } from "../api/utils/serialization";
 
 // Obtener todos los usuarios
 export async function handleGetUsuarios() {
@@ -44,16 +45,29 @@ export async function handleGetUsuarioById(req: Request, id: string) {
   }
 }
 
-// Actualizar usuario por ID
 export async function handleUpdateUsuario(req: Request, id: string) {
   try {
     const usuarioData = await req.json();
-    const usuarioActualizado = await usuarioService.updateUsuario(Number(id), usuarioData);
-    return NextResponse.json(usuarioActualizado, { status: 200 });
+
+    const url = new URL(req.url); 
+    const completarCuenta = url.searchParams.get("completarCuenta") === "true"; 
+
+    const usuarioActualizado = await usuarioService.updateUsuario(
+      Number(id),
+      usuarioData,
+      completarCuenta
+    );
+    const usuarioSanitizado = convertBigIntsToStrings(usuarioActualizado);
+    return NextResponse.json(usuarioSanitizado, { status: 200 });
+
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error desconocido al crear usuario" },
+      {
+        error: error instanceof Error
+          ? error.message
+          : "Error desconocido al actualizar usuario",
+      },
       { status: 400 }
     );
   }
