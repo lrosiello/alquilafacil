@@ -35,3 +35,16 @@ endpoint: POST    http://localhost:3000/api/publicaciones
   "estado": "DISPONIBLE",
   "oferenteId": 1
 }
+
+
+AGREEMENTS
+endpoint: POST    http://localhost:3000/api/acuerdos
+
+{
+  "publicacionId": 5,
+  "inquilinoId": 3,
+  "nombreInquilino": "Luis Rosiello",
+  "oferenteId": 1,
+  "nombreOferente": "Inmobiliaria ABC",
+  "fechaAcuerdo": "2025-06-17T14:30:00.000Z"
+}

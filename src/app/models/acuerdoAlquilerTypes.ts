@@ -1,8 +1,8 @@
 export interface AcuerdoAlquilerData {
-    publicacionId: number;
-    inquilinoId: number;
-    nombreInquilino: string;
-    oferenteId: number;
-    nombreOferente: string;
-    fechaAcuerdo: Date;
+  publicacionId: number;
+  inquilinoId: number;
+  oferenteId: number;
+  nombreInquilino?: string;
+  nombreOferente?: string;
+  fechaAcuerdo?: Date;
 }

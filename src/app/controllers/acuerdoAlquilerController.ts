@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as acuerdoAlquilerService from "../services/acuerdoAlquilerService";
 
+
 // Obtener todas los acuerdos
 export async function handleGetAcuerdos() {
   try {
@@ -39,6 +40,24 @@ export async function handleGetAcuerdoById(req: Request, id: string) {
     console.error(error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Error al obtener acuerdo" },
+      { status: 404 }
+    );
+  }
+}
+
+
+// Eliminar acuerdo por ID
+export async function handleDeleteAcuerdo(req: Request, id: string) {
+  try {
+    await acuerdoAlquilerService.deleteAcuerdo(Number(id));
+    return NextResponse.json(
+      { message: "Acuerdo eliminado correctamente" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message :  "Error al eliminar el acuerdo" },
       { status: 404 }
     );
   }

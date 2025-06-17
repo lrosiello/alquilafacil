@@ -6,7 +6,8 @@ import { convertBigIntsToStrings } from "../api/utils/serialization";
 export async function handleGetUsuarios() {
   try {
     const usuarios = await usuarioService.getAllUsuarios();
-    return NextResponse.json(usuarios, { status: 200 });
+    const usuariosSanitizados = convertBigIntsToStrings(usuarios);
+    return NextResponse.json(usuariosSanitizados, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -21,7 +22,8 @@ export async function handleCreateUsuario(req: Request) {
   try {
     const usuarioData = await req.json();
     const nuevoUsuario = await usuarioService.createUsuario(usuarioData);
-    return NextResponse.json(nuevoUsuario, { status: 201 });
+    const usuarioSanitizado = convertBigIntsToStrings(nuevoUsuario);
+    return NextResponse.json(usuarioSanitizado, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -35,7 +37,8 @@ export async function handleCreateUsuario(req: Request) {
 export async function handleGetUsuarioById(req: Request, id: string) {
   try {
     const usuario = await usuarioService.getUsuarioById(Number(id));
-    return NextResponse.json(usuario, { status: 200 });
+    const usuarioSanitizado = convertBigIntsToStrings(usuario);
+    return NextResponse.json(usuarioSanitizado, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

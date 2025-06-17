@@ -19,5 +19,10 @@ export async function getAcuerdoById(id: number) {
   });
 }
 
+export async function deleteAcuerdo(id: number) {
+  return prisma.publicacion.delete({
+    where: { id },
+  });
+}
 
 
