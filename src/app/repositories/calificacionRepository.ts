@@ -24,3 +24,12 @@ export async function deleteCalificacion(id: number) {
     where: { id },
   });
 }
+
+export async function getCalificacionByAcuerdoAndCalificador(acuerdoId: number, calificadorId: number) {
+  return await prisma.calificacion.findFirst({
+    where: {
+      acuerdoId,
+      calificadorId,
+    },
+  });
+}

@@ -19,13 +19,6 @@ export async function getFotoById(id: number) {
   });
 }
 
-export async function updateFoto(id: number, fotoData: FotoData) {
-  return prisma.foto.update({
-    where: { id },
-    data: fotoData,
-  });
-}
-
 export async function deleteFoto(id: number) {
   return prisma.foto.delete({
     where: { id },

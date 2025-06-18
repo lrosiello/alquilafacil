@@ -36,36 +36,6 @@ export async function getFotoById(id: number) {
 
 
 
-
-
-export async function updateFoto(id: number, fotoData: FotoData) {
-  const fotoExistente = await fotoRepository.getFotoById(id);
-  if (!fotoExistente) {
-    throw new Error("Esta foto no existe para actualizar");
-  }
-
-  const { url, publicacionId } = fotoData;
-
-  if (!url || !publicacionId) {
-    throw new Error("Todos los campos son obligatorios");
-  }
-
-  // Verificar si existe la publicacion
-  const publicacionExiste = await publicacionRepository.getPublicacionById(
-    publicacionId
-  );
-  if (!publicacionExiste) {
-    throw new Error("La publicacion indicada no existe");
-  }
-
-  return await fotoRepository.updateFoto(id, fotoData);
-}
-
-
-
-
-
-
 export async function deleteFoto(id: number) {
   const fotoExistente = await fotoRepository.getFotoById(id);
   if (!fotoExistente) {

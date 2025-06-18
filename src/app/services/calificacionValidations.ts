@@ -1,5 +1,6 @@
 import * as usuarioRepository from "../repositories/usuarioRepository";
 import * as acuerdoAlquilerRepository from "../repositories/acuerdoAlquilerRepository";
+import * as calificacionRepository from "../repositories/calificacionRepository";
 
 export default async function validating(
   calificadorId: number,
@@ -24,13 +25,23 @@ export default async function validating(
     throw new Error("El calificado no existe");
   }
 
-  // Verificar existencia calificador (OPCIONAL)
+// Verificar existencia del acuerdo
   if (acuerdoId) {
-    const acuerdoExiste = await acuerdoAlquilerRepository.getAcuerdoById(
-      acuerdoId
-    );
+    const acuerdoExiste = await acuerdoAlquilerRepository.getAcuerdoById(acuerdoId);
     if (!acuerdoExiste) {
       throw new Error("No hay un acuerdo relacionado existente");
+    }
+
+    // Verificar que no haya una calificación previa del mismo calificador en este acuerdo
+    const calificacionExistente = await calificacionRepository.getCalificacionByAcuerdoAndCalificador(
+      acuerdoId,
+      calificadorId
+    );
+    if (calificacionExistente) {
+      return {
+        valid: false,
+        message: "Ya realizaste una calificación para este acuerdo.",
+      };
     }
   }
 

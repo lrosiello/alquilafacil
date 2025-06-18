@@ -48,3 +48,27 @@ endpoint: POST    http://localhost:3000/api/acuerdos
   "nombreOferente": "Inmobiliaria ABC",
   "fechaAcuerdo": "2025-06-17T14:30:00.000Z"
 }
+
+
+PHOTOS
+endpoint: POST    http://localhost:3000/api/fotos
+
+
+{
+  "url" : "https//asgasagasg//asgkmsa.com",
+  "publicacionId" : 1
+}
+
+
+
+RATINGS
+
+endpoint : POST   http://localhost:3000/api/calificaciones
+
+{
+  "calificadorId": 2,
+  "calificadoId": 1,
+  "puntuacion": 5,
+  "comentario": "Excelente experiencia, todo fue según lo acordado.",
+  "acuerdoId": 3
+}

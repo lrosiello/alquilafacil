@@ -82,6 +82,6 @@ model Calificacion {
   calificado      Usuario   @relation("Calificado", fields: [calificadoId], references: [id])
   puntuacion      Int
   comentario      String?
-  acuerdoId       Int?       // opcional, solo si hubo acuerdo
-  acuerdo AcuerdoAlquiler? @relation("AcuerdoRelacion", fields: [acuerdoId], references: [id])
+  acuerdoId       Int
+  acuerdo         AcuerdoAlquiler @relation("AcuerdoRelacion", fields: [acuerdoId], references: [id])
 }

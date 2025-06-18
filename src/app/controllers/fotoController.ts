@@ -44,20 +44,6 @@ export async function handleGetFotoById(req: Request, id: string) {
   }
 }
 
-// Actualizar foto por ID
-export async function handleUpdateFoto(req: Request, id: string) {
-  try {
-    const fotoData = await req.json();
-    const fotoActualizada = await fotoService.updateFoto(Number(id), fotoData);
-    return NextResponse.json(fotoActualizada, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error desconocido al actualizar la foto" },
-      { status: 400 }
-    );
-  }
-}
 
 // Eliminar publicación por ID
 export async function handleDeleteFoto(req: Request, id: string) {
