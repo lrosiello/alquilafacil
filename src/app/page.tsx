@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -6,32 +6,24 @@ import { useSession, signIn, signOut } from "next-auth/react";
 export default function Home() {
   const { data: session } = useSession();
 
-  if (session) {
-    return (
-      <>
-        <p>Bienvenido, {session.user?.name}</p>
-        <button onClick={() => signOut()}>Cerrar sesión</button>
-      </>
-    );
-  }
-
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <>
-
-
-
-          <p>No estás logueado.</p>
-          <button onClick={() => signIn("google")}>
-            Iniciar sesión con Google
-          </button>
-
-
-
-
-        </>
+        {session ? (
+          <>
+            <p>Bienvenido, {session.user?.name}</p>
+            <button onClick={() => signOut()}>Cerrar sesión</button>
+          </>
+        ) : (
+          <>
+            <p>No estás logueado.</p>
+            <button onClick={() => signIn("google")}>
+              Iniciar sesión con Google
+            </button>
+          </>
+        )}
       </main>
+
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"

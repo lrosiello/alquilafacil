@@ -15,13 +15,15 @@ const handler = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Si el usuario acaba de iniciar sesión, agrega el id al token
       if (user) {
         token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
+      // Verifica que token.id existe antes de asignar
+      if (session.user && token?.id) {
         session.user.id = token.id as string;
       }
       return session;
