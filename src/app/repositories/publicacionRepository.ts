@@ -16,6 +16,7 @@ export async function createPublicacion(publicacionData: PublicacionData) {
 export async function getPublicacionById(id: number) {
   return prisma.publicacion.findUnique({
     where: { id },
+    include: { fotos: true },
   });
 }
 

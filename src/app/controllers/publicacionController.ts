@@ -19,12 +19,19 @@ export async function handleGetPublicaciones() {
 export async function handleCreatePublicacion(req: Request) {
   try {
     const publicacionData = await req.json();
-    const nuevaPublicacion = await publicacionService.createPublicacion(publicacionData);
+    const nuevaPublicacion = await publicacionService.createPublicacion(
+      publicacionData
+    );
     return NextResponse.json(nuevaPublicacion, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error desconocido al crear la publicación" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Error desconocido al crear la publicación",
+      },
       { status: 400 }
     );
   }
@@ -38,7 +45,12 @@ export async function handleGetPublicacionById(req: Request, id: string) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error al obtener la publicación" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Error al obtener la publicación",
+      },
       { status: 404 }
     );
   }
@@ -48,12 +60,20 @@ export async function handleGetPublicacionById(req: Request, id: string) {
 export async function handleUpdatePublicacion(req: Request, id: string) {
   try {
     const publicacionData = await req.json();
-    const publicacionActualizada = await publicacionService.updatePublicacion(Number(id), publicacionData);
+    const publicacionActualizada = await publicacionService.updatePublicacion(
+      Number(id),
+      publicacionData
+    );
     return NextResponse.json(publicacionActualizada, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error desconocido al crear la publicación" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Error desconocido al crear la publicación",
+      },
       { status: 400 }
     );
   }
@@ -62,7 +82,19 @@ export async function handleUpdatePublicacion(req: Request, id: string) {
 // Eliminar publicación por ID
 export async function handleDeletePublicacion(req: Request, id: string) {
   try {
+    // 1. Obtener la publicación con sus fotos
+    const publicacion = await publicacionService.getPublicacionById(Number(id));
+
+    // 2. Eliminar las fotos en el servicio externo
+    for (const foto of publicacion.fotos) {
+      if (foto.deleteUrl) {
+        await fetch(foto.deleteUrl);
+      }
+    }
+
+    // 3. Eliminar la publicación de la base de datos
     await publicacionService.deletePublicacion(Number(id));
+
     return NextResponse.json(
       { message: "Publicación eliminada correctamente" },
       { status: 200 }
@@ -70,7 +102,12 @@ export async function handleDeletePublicacion(req: Request, id: string) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message :  "Error al eliminar la publicación" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Error al eliminar la publicación",
+      },
       { status: 404 }
     );
   }

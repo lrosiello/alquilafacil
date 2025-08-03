@@ -56,6 +56,7 @@ enum Estado {
 model Foto {
   id              Int       @id @default(autoincrement())
   url             String    // URL de la foto
+  deleteUrl       String?   //eliminador de foto
   publicacionId   Int
   publicacion     Publicacion @relation("FotosRelacionadas", fields: [publicacionId], references: [id]) // Relación con Publicacion para fotos principales
 }
