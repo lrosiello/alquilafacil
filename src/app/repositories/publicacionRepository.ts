@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 import { PublicacionData } from "../models/publicacionTypes";
 
-const prisma = new PrismaClient();
 
 export async function getAllPublicaciones() {
   return prisma.publicacion.findMany();

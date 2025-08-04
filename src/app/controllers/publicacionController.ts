@@ -82,17 +82,7 @@ export async function handleUpdatePublicacion(req: Request, id: string) {
 // Eliminar publicación por ID
 export async function handleDeletePublicacion(req: Request, id: string) {
   try {
-    // 1. Obtener la publicación con sus fotos
-    const publicacion = await publicacionService.getPublicacionById(Number(id));
-
-    // 2. Eliminar las fotos en el servicio externo
-    for (const foto of publicacion.fotos) {
-      if (foto.deleteUrl) {
-        await fetch(foto.deleteUrl);
-      }
-    }
-
-    // 3. Eliminar la publicación de la base de datos
+  
     await publicacionService.deletePublicacion(Number(id));
 
     return NextResponse.json(

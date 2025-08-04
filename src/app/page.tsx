@@ -11,6 +11,7 @@ export default function Home() {
   const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fotoId, setFotoId] = useState<number | null>(null);
 
    // Subir imagen
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,6 +39,7 @@ export default function Home() {
       if (res.ok) {
         setImgUrl(data.url);
         setDeleteUrl(data.delete_url);
+        setFotoId(data.fotoId);
       } else {
         setError(data.error || "Error al subir imagen");
       }
@@ -50,23 +52,26 @@ export default function Home() {
 
   // Eliminar imagen
   const handleDelete = async () => {
-    if (!deleteUrl) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(deleteUrl, { method: "GET" });
-      if (res.ok) {
-        setImgUrl(null);
-        setDeleteUrl(null);
-      } else {
-        setError("No se pudo eliminar la imagen");
-      }
-    } catch {
-      setError("Error de red al eliminar");
-    } finally {
-      setLoading(false);
+  if (!fotoId) return;
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await fetch(`/api/fotos/${fotoId}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setImgUrl(null);
+      setDeleteUrl(null);
+      setFotoId(null);
+    } else {
+      setError("No se pudo eliminar la imagen");
     }
-  };
+  } catch {
+    setError("Error de red al eliminar");
+  } finally {
+    setLoading(false);
+  }
+};
 
  
   return (

@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 import { UsuarioData, UsuarioUpdateData } from "../models/usuarioTypes";
 
-const prisma = new PrismaClient();
+
 
 export async function getAllUsuarios() {
   return prisma.usuario.findMany();

@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 import { FotoData } from "../models/fotoTypes";
-
-const prisma = new PrismaClient();
 
 export async function getAllFotos() {
   return prisma.foto.findMany();
@@ -9,7 +7,10 @@ export async function getAllFotos() {
 
 export async function createFoto(fotoData: FotoData) {
   return prisma.foto.create({
-    data: fotoData,
+    data: {
+      url: fotoData.url,
+      publicacionId: fotoData.publicacionId,
+    },
   });
 }
 

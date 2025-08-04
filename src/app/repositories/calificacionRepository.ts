@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 import { CalificacionData } from "../models/calificacionTypes";
 
-const prisma = new PrismaClient();
 
 export async function getAllCalificaciones() {
   return prisma.calificacion.findMany();

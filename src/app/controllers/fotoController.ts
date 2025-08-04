@@ -19,7 +19,14 @@ export async function handleGetFotos() {
 export async function handleCreateFoto(req: Request) {
   try {
     const fotoData = await req.json();
-    const nuevaFoto = await fotoService.createFoto(fotoData);
+
+    // Guardar en la base de datos usando el service
+    const nuevaFoto = await fotoService.createFoto({
+      url: fotoData.url,
+      deleteUrl: fotoData.deleteUrl,
+      publicacionId: fotoData.publicacionId, // si corresponde
+    });
+
     return NextResponse.json(nuevaFoto, { status: 201 });
   } catch (error) {
     console.error(error);
