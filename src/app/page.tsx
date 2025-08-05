@@ -4,76 +4,110 @@ import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRef, useState } from "react";
 
+type FotoEstado = {
+  file: File;
+  estado: "pendiente" | "subiendo" | "ok" | "error";
+  id?: number;
+  url?: string;
+  errorMsg?: string;
+};
+
 export default function Home() {
   const { data: session } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imgUrl, setImgUrl] = useState<string | null>(null);
-  const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
+  const [fotos, setFotos] = useState<FotoEstado[]>([]);
+  const [subidas, setSubidas] = useState<FotoEstado[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fotoId, setFotoId] = useState<number | null>(null);
 
-   // Subir imagen
+  // Manejar selección de archivos (hasta 6)
+  const handleFileChange = () => {
+  const files = fileInputRef.current?.files;
+  if (!files) return;
+  if (fotos.length + files.length > 6) {
+    setError("Solo puedes seleccionar hasta 6 imágenes");
+    return;
+  }
+  setError(null);
+  setFotos((prev) => [
+    ...prev,
+    ...Array.from(files).map((file) => ({ file, estado: "pendiente" as const })),
+  ]);
+};
+
+  // Subir todas las imágenes seleccionadas
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) {
-      setError("Selecciona una imagen");
-      setLoading(false);
-      return;
+    const nuevasFotos: FotoEstado[] = fotos.map((f) => ({ ...f, estado: "subiendo" }));
+    setFotos(nuevasFotos);
+
+    const resultados: FotoEstado[] = [];
+
+    for (let i = 0; i < nuevasFotos.length; i++) {
+      try {
+        const formData = new FormData();
+        formData.append("image", nuevasFotos[i].file);
+        const res = await fetch("/api/fotos/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al subir imagen");
+        resultados.push({
+          ...nuevasFotos[i],
+          estado: "ok",
+          id: data.fotoId,
+          url: data.url,
+        });
+      } catch (err) {
+        resultados.push({
+          ...nuevasFotos[i],
+          estado: "error",
+          errorMsg: err instanceof Error ? err.message : "Error de red",
+        });
+      }
+      setFotos((prev) =>
+        prev.map((foto, idx) =>
+          idx === i
+            ? resultados[i]
+            : foto
+        )
+      );
     }
 
-    const formData = new FormData();
-    formData.append("image", file);
+    // Mostrar solo las últimas 6 subidas exitosas
+    setSubidas((prev) => {
+      const exitosas = resultados.filter((f) => f.estado === "ok");
+      return [...prev, ...exitosas].slice(-6);
+    });
 
+    setLoading(false);
+  };
+
+  // Eliminar imagen subida por id
+  const handleDelete = async (fotoId?: number) => {
+    if (!fotoId) return;
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch("/api/fotos/upload", {
-        method: "POST",
-        body: formData,
+      const res = await fetch(`/api/fotos/${fotoId}`, {
+        method: "DELETE",
       });
-
-      const data = await res.json();
       if (res.ok) {
-        setImgUrl(data.url);
-        setDeleteUrl(data.delete_url);
-        setFotoId(data.fotoId);
+        setSubidas((prev) => prev.filter((f) => f.id !== fotoId));
       } else {
-        setError(data.error || "Error al subir imagen");
+        setError("No se pudo eliminar la imagen");
       }
-    } catch (err) {
-      setError("Error de red");
+    } catch {
+      setError("Error de red al eliminar");
     } finally {
       setLoading(false);
     }
   };
 
-  // Eliminar imagen
-  const handleDelete = async () => {
-  if (!fotoId) return;
-  setLoading(true);
-  setError(null);
-  try {
-    const res = await fetch(`/api/fotos/${fotoId}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      setImgUrl(null);
-      setDeleteUrl(null);
-      setFotoId(null);
-    } else {
-      setError("No se pudo eliminar la imagen");
-    }
-  } catch {
-    setError("Error de red al eliminar");
-  } finally {
-    setLoading(false);
-  }
-};
-
- 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -92,35 +126,67 @@ export default function Home() {
         )}
 
         {/* Subidor de imagen */}
-        <form onSubmit={handleUpload} className="flex flex-col gap-2 mt-8">
+        <form onSubmit={handleUpload}>
           <input
             type="file"
-            name="image" 
+            name="image"
             accept="image/*"
             ref={fileInputRef}
+            multiple
             disabled={loading}
+            onChange={handleFileChange}
           />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            disabled={loading}
-          >
-            {loading ? "Subiendo..." : "Subir imagen"}
+          <button type="submit" disabled={loading || fotos.length === 0}>
+            {loading ? "Subiendo..." : "Enviar"}
           </button>
         </form>
 
-        {/* Visor de imagen y botón de eliminar */}
-        {imgUrl && (
-          <div className="flex flex-col items-center gap-2 mt-4">
-            <img src={imgUrl} alt="Imagen subida" className="max-w-xs rounded" />
-            <button
-              onClick={handleDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-              disabled={loading}
-            >
-              {loading ? "Eliminando..." : "Eliminar imagen"}
-            </button>
+        {/* Previews antes de subir */}
+        {fotos.length > 0 && (
+          <div className="flex flex-wrap gap-4 mt-4">
+            {fotos.map((foto, idx) => (
+              <div key={idx} className="flex flex-col items-center">
+                <img
+                  src={URL.createObjectURL(foto.file)}
+                  alt="Preview"
+                  className="max-w-xs rounded"
+                  style={{ opacity: foto.estado === "ok" ? 1 : 0.5 }}
+                />
+                <span className="text-xs text-gray-500">{foto.file.name}</span>
+                {foto.estado === "subiendo" && (
+                  <span className="text-blue-500">Subiendo...</span>
+                )}
+                {foto.estado === "error" && (
+                  <span className="text-red-500">{foto.errorMsg}</span>
+                )}
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* Mostrar últimas 6 imágenes subidas */}
+        {subidas.length > 0 && (
+          <>
+            <h2 className="mt-8 text-lg font-bold">Últimas 6 fotos subidas</h2>
+            <div className="flex flex-wrap gap-4 mt-4">
+              {subidas.map((foto, idx) => (
+                <div key={foto.id ?? idx} className="flex flex-col items-center">
+                  <img
+                    src={foto.url}
+                    alt="Imagen subida"
+                    className="max-w-xs rounded"
+                  />
+                  <button
+                    onClick={() => handleDelete(foto.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded mt-2"
+                    disabled={loading}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {error && <p className="text-red-500">{error}</p>}
