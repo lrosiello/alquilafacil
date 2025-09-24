@@ -22,18 +22,21 @@ export default function Home() {
 
   // Manejar selección de archivos (hasta 6)
   const handleFileChange = () => {
-  const files = fileInputRef.current?.files;
-  if (!files) return;
-  if (fotos.length + files.length > 6) {
-    setError("Solo puedes seleccionar hasta 6 imágenes");
-    return;
-  }
-  setError(null);
-  setFotos((prev) => [
-    ...prev,
-    ...Array.from(files).map((file) => ({ file, estado: "pendiente" as const })),
-  ]);
-};
+    const files = fileInputRef.current?.files;
+    if (!files) return;
+    if (fotos.length + files.length > 6) {
+      setError("Solo puedes seleccionar hasta 6 imágenes");
+      return;
+    }
+    setError(null);
+    setFotos((prev) => [
+      ...prev,
+      ...Array.from(files).map((file) => ({
+        file,
+        estado: "pendiente" as const,
+      })),
+    ]);
+  };
 
   // Subir todas las imágenes seleccionadas
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +44,10 @@ export default function Home() {
     setError(null);
     setLoading(true);
 
-    const nuevasFotos: FotoEstado[] = fotos.map((f) => ({ ...f, estado: "subiendo" }));
+    const nuevasFotos: FotoEstado[] = fotos.map((f) => ({
+      ...f,
+      estado: "subiendo",
+    }));
     setFotos(nuevasFotos);
 
     const resultados: FotoEstado[] = [];
@@ -70,11 +76,7 @@ export default function Home() {
         });
       }
       setFotos((prev) =>
-        prev.map((foto, idx) =>
-          idx === i
-            ? resultados[i]
-            : foto
-        )
+        prev.map((foto, idx) => (idx === i ? resultados[i] : foto))
       );
     }
 
@@ -106,6 +108,10 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRemoveFoto = (idx: number) => {
+    setFotos((prev) => prev.filter((_, i) => i !== idx));
   };
 
   return (
@@ -145,7 +151,16 @@ export default function Home() {
         {fotos.length > 0 && (
           <div className="flex flex-wrap gap-4 mt-4">
             {fotos.map((foto, idx) => (
-              <div key={idx} className="flex flex-col items-center">
+              <div key={idx} className="relative flex flex-col items-center">
+                {/* Botón X para eliminar */}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFoto(idx)}
+                  className="absolute top-2 right-2 bg-black bg-opacity-60 text-white rounded-full w-6 h-6 flex items-center justify-center z-10"
+                  title="Eliminar"
+                >
+                  ×
+                </button>
                 <img
                   src={URL.createObjectURL(foto.file)}
                   alt="Preview"
@@ -170,7 +185,10 @@ export default function Home() {
             <h2 className="mt-8 text-lg font-bold">Últimas 6 fotos subidas</h2>
             <div className="flex flex-wrap gap-4 mt-4">
               {subidas.map((foto, idx) => (
-                <div key={foto.id ?? idx} className="flex flex-col items-center">
+                <div
+                  key={foto.id ?? idx}
+                  className="flex flex-col items-center"
+                >
                   <img
                     src={foto.url}
                     alt="Imagen subida"
