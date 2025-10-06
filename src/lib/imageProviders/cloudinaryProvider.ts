@@ -1,21 +1,30 @@
-import cloudinaryProvider from "./cloudinaryProvider";
-import imgbbProvider from "./imgbbProvider";
-import type { ImageProvider } from "./types";
+import { v2 as cloudinary } from "cloudinary";
+import { ImageProvider, UploadResult } from "./types";
 
-// Podés cambiar la fuente desde un .env
-const providerName = process.env.IMAGE_PROVIDER || "cloudinary";
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 
-let provider: ImageProvider;
+const cloudinaryProvider: ImageProvider = {
+  uploadImage: async (buffer: Buffer, filename: string): Promise<UploadResult> => {
+    return await new Promise<UploadResult>((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "mis-imagenes", public_id: filename }, (err, result) => {
+          if (err || !result) return reject(err);
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
+        })
+        .end(buffer);
+    });
+  },
 
-switch (providerName) {
-  case "imgbb":
-    provider = imgbbProvider;
-    break;
-  case "cloudinary":
-    provider = cloudinaryProvider;
-    break;
-  default:
-    throw new Error(`Proveedor de imagenes no soportado: ${providerName}`);
-}
+  deleteImage: async (publicId: string) => {
+    await cloudinary.uploader.destroy(publicId);
+  },
+};
 
-export default provider;
+export default cloudinaryProvider;
